@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integrator-inventory
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: integrator-inventory
+  template:
+    metadata:
+      labels:
+        app: integrator-inventory
+    spec:
+      containers:
+        - name: inventory
+          image: integrator-inventory:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: SECRET_KEY
+              value: "k8s-demo-secret"
+            - name: ADMIN_EMAIL
+              value: "admin@integratortool.com"
+            - name: ADMIN_PASSWORD
+              value: "Admin@123"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
